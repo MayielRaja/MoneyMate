@@ -1,4 +1,5 @@
 package com.example.moneymate;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -6,13 +7,16 @@ import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import java.util.*;
+import java.util.List;
+
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder> {
 
     private List<Expense> expenseList;
+    private OnDeleteClickListener deleteClickListener;
 
-    public ExpenseAdapter(List<Expense> expenseList) {
+    public ExpenseAdapter(List<Expense> expenseList, OnDeleteClickListener deleteClickListener) {
         this.expenseList = expenseList;
+        this.deleteClickListener = deleteClickListener;
     }
 
     @NonNull
@@ -29,12 +33,12 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         holder.textTitle.setText(expense.getTitle());
         holder.textCategory.setText(expense.getCategory());
         holder.textAmount.setText("₹" + String.format("%.2f", expense.getAmount()));
+        holder.textDate.setText(expense.getDate());
 
-        // Handle delete button
         holder.btnDelete.setOnClickListener(v -> {
-            expenseList.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, expenseList.size());
+            if (deleteClickListener != null) {
+                deleteClickListener.onDeleteClick(expense);
+            }
         });
     }
 
@@ -44,7 +48,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
     }
 
     public static class ExpenseViewHolder extends RecyclerView.ViewHolder {
-        TextView textTitle, textCategory, textAmount;
+        TextView textTitle, textCategory, textAmount, textDate;
         Button btnDelete;
 
         public ExpenseViewHolder(@NonNull View itemView) {
@@ -52,7 +56,13 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
             textTitle = itemView.findViewById(R.id.textTitle);
             textCategory = itemView.findViewById(R.id.textCategory);
             textAmount = itemView.findViewById(R.id.textAmount);
+            textDate = itemView.findViewById(R.id.textDate);
             btnDelete = itemView.findViewById(R.id.btnDelete);
         }
+    }
+
+    // Interface to handle delete click
+    public interface OnDeleteClickListener {
+        void onDeleteClick(Expense expense);
     }
 }
